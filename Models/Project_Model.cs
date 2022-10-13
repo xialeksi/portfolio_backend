@@ -29,13 +29,65 @@ namespace portfolio_backend
             using var cmd = Db.Connection.CreateCommand();
             cmd.CommandText = @"SELECT * FROM project ;";
             var result=await ReturnAllAsync(await cmd.ExecuteReaderAsync());
-           // Console.WriteLine(result);
             return await ReturnAllAsync(await cmd.ExecuteReaderAsync());
         }
         //select one
+        public async Task<Project> FindOneAsync(int idproject)
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = @"SELECT * FROM project WHERE idproject = @idproject";
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@idproject",
+                DbType = DbType.Int32,
+                Value = idproject,
+            });
+            var result = await ReturnAllAsync(await cmd.ExecuteReaderAsync());
+            if(result.Count > 0){
+                return result[0];
+            }
+            else {
+                return null;
+            }
+            //return result.Count > 0 ? result[0] : null;
+        }
+
         //create new
+        public async Task<int> InsertAsync()
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText=@"insert into project(idproject,name,description) 
+            values(@idproject,@name,@description);";
+            BindParams(cmd);
+            BindId(cmd);
+            try
+            {
+                int affectedRows=await cmd.ExecuteNonQueryAsync();
+                return affectedRows;
+            }
+            catch (System.Exception)
+            {   
+                return 0;
+            } 
+        }
         //edit existing
+        public async Task UpdateAsync()
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = @"UPDATE project SET idproject = @idproject, name = @name, description = @description WHERE idproject = @idproject;";
+            BindParams(cmd);
+            BindId(cmd);
+            await cmd.ExecuteNonQueryAsync();
+        }
         //delete one
+        public async Task DeleteAsync()
+        {
+            using var cmd = Db.Connection.CreateCommand();
+            cmd.CommandText = @"DELETE FROM project WHERE idproject = @idproject;";
+            BindId(cmd);
+            await cmd.ExecuteNonQueryAsync();
+        }
+
         private async Task<List<Project>> ReturnAllAsync(DbDataReader reader)
         {
             var posts = new List<Project>();
@@ -59,6 +111,30 @@ namespace portfolio_backend
                 }
             }
             return posts;
+        }
+        private void BindId(MySqlCommand cmd)
+        {
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@idproject",
+                DbType = DbType.String,
+                Value = idproject,
+            });
+        }
+        private void BindParams(MySqlCommand cmd)
+        {
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@name",
+                DbType = DbType.DateTime,
+                Value = name,
+            });
+            cmd.Parameters.Add(new MySqlParameter
+            {
+                ParameterName = "@description",
+                DbType = DbType.DateTime,
+                Value = description,
+            });
         }
     }
 }
