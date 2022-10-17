@@ -1,2 +1,13 @@
 # portfolio_backend
-backend for my portfolio app
+asp.net backend for my portfolio app
+uses a MySQL database to store data about projects and images
+remember to add this:
+
+namespace portfolio_backend
+{
+    public static class MyEnvironment
+    {
+        public static void SetMySQLConnention(){
+             System.Environment.SetEnvironmentVariable("DATABASE_URL", "server=127.0.0.1;user id=USERNAME;password=PASSWORD;port=3306;database=DATABASENAME;");}
+    }
+}
